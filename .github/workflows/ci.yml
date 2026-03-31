@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: ["master", "main"]
+  pull_request:
+    branches: ["master", "main"]
+
+jobs:
+  lint-and-security:
+    name: Lint & Security
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dev dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Format check (Black)
+        run: black --check .
+
+      - name: Lint (Ruff)
+        run: ruff check .
+
+      - name: Security scan (Bandit)
+        run: bandit -c pyproject.toml -r . --exit-zero
+
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    needs: lint-and-security
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dev dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Run tests
+        env:
+          OPENWEATHER_API_KEY: test-placeholder
+        run: |
+          if [ -d "tests" ] && [ "$(ls -A tests)" ]; then
+            pytest --tb=short
+          else
+            echo "No tests found — skipping."
+          fi

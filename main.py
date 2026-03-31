@@ -1,11 +1,14 @@
-from fastapi import FastAPI, HTTPException
-from dotenv import load_dotenv
-import httpx
 import os
+
+import httpx
+from dotenv import load_dotenv
+from fastapi import FastAPI, HTTPException
 
 load_dotenv()
 
-app = FastAPI(title="Weather API", description="Get weather details by city name or city ID")
+app = FastAPI(
+    title="Weather API", description="Get weather details by city name or city ID"
+)
 
 OPENWEATHER_BASE_URL = "https://api.openweathermap.org/data/2.5/weather"
 API_KEY = os.getenv("OPENWEATHER_API_KEY")
@@ -29,7 +32,9 @@ async def get_weather_by_city_name(city_name: str, units: str = "metric"):
     if response.status_code == 404:
         raise HTTPException(status_code=404, detail=f"City '{city_name}' not found.")
     if response.status_code != 200:
-        raise HTTPException(status_code=response.status_code, detail="Weather API error.")
+        raise HTTPException(
+            status_code=response.status_code, detail="Weather API error."
+        )
     return _format_weather(response.json())
 
 
@@ -43,7 +48,9 @@ async def get_weather_by_city_id(city_id: int, units: str = "metric"):
     if response.status_code == 404:
         raise HTTPException(status_code=404, detail=f"City ID '{city_id}' not found.")
     if response.status_code != 200:
-        raise HTTPException(status_code=response.status_code, detail="Weather API error.")
+        raise HTTPException(
+            status_code=response.status_code, detail="Weather API error."
+        )
     return _format_weather(response.json())
 
 
