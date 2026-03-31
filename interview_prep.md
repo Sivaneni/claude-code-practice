@@ -63,6 +63,31 @@ This `needs` dependency means bad code is rejected early — tests don't waste c
 
 ---
 
+## CI Failure & Root Cause Analysis
+
+### Incident
+The GitHub Actions `test` job failed with:
+```
+ModuleNotFoundError: No module named 'fastapi'
+```
+
+### Root Cause
+`requirements-dev.txt` was missing the `-r requirements.txt` include line. A linter/formatter hook silently stripped it during an earlier commit. As a result, the CI runner installed only dev tools (Black, Ruff, pytest, etc.) but **never installed the production dependencies** (fastapi, httpx, python-dotenv). When pytest tried to collect `test_weather_api.py`, the import `from fastapi.testclient import TestClient` failed immediately.
+
+### Fix Applied
+Restored `-r requirements.txt` as the first line of `requirements-dev.txt`:
+```
+-r requirements.txt   ← re-added this line
+black>=24.0.0
+ruff>=0.4.0
+...
+```
+
+### Lesson Learned
+Always verify that `requirements-dev.txt` explicitly includes production dependencies via `-r requirements.txt`. A CI environment is a clean slate — it installs only what you tell it to. Never assume dependencies are pre-installed.
+
+---
+
 ## One-liner Summary for Interviews
 
 > "I set up a two-layer CI pipeline — pre-commit hooks catch issues locally before commit, and GitHub Actions re-enforces the same checks on every push and PR, with sequential jobs so tests only run on clean code."
