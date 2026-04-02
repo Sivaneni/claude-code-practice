@@ -8,7 +8,10 @@ router = APIRouter(prefix="/weather", tags=["weather"])
 
 
 def _check_api_key() -> None:
-    if not settings.openweather_api_key or settings.openweather_api_key == "your_api_key_here":
+    if (
+        not settings.openweather_api_key
+        or settings.openweather_api_key == "your_api_key_here"
+    ):
         raise HTTPException(
             status_code=503,
             detail="OpenWeather API key not configured. Set OPENWEATHER_API_KEY in .env file.",

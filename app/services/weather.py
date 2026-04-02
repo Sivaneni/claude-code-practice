@@ -5,7 +5,10 @@ import httpx
 from fastapi import HTTPException
 
 from app.core.config import settings
-from app.middleware.metrics import WEATHER_API_CALLS_TOTAL, WEATHER_EXTERNAL_API_DURATION_SECONDS
+from app.middleware.metrics import (
+    WEATHER_API_CALLS_TOTAL,
+    WEATHER_EXTERNAL_API_DURATION_SECONDS,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +33,11 @@ async def fetch_weather(params: dict, city_type: str, not_found_detail: str) -> 
         WEATHER_API_CALLS_TOTAL.labels(city_type=city_type, status="not_found").inc()
         logger.warning(
             "weather_api_not_found",
-            extra={"city_type": city_type, "lookup": lookup, "duration_ms": duration_ms},
+            extra={
+                "city_type": city_type,
+                "lookup": lookup,
+                "duration_ms": duration_ms,
+            },
         )
         raise HTTPException(status_code=404, detail=not_found_detail)
 
@@ -45,7 +52,9 @@ async def fetch_weather(params: dict, city_type: str, not_found_detail: str) -> 
                 "duration_ms": duration_ms,
             },
         )
-        raise HTTPException(status_code=response.status_code, detail="Weather API error.")
+        raise HTTPException(
+            status_code=response.status_code, detail="Weather API error."
+        )
 
     WEATHER_API_CALLS_TOTAL.labels(city_type=city_type, status="success").inc()
     logger.info(

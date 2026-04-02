@@ -63,9 +63,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             log_fn = (
                 logger.error
                 if status_code >= 500
-                else logger.warning
-                if status_code >= 400
-                else logger.info
+                else logger.warning if status_code >= 400 else logger.info
             )
             log_fn(
                 "http_request",
