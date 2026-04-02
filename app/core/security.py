@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import bcrypt
 from fastapi import Depends, HTTPException, status
@@ -34,7 +34,7 @@ def authenticate_user(username: str, password: str) -> dict | None:
 
 def create_access_token(data: dict) -> str:
     payload = data.copy()
-    payload["exp"] = datetime.now(timezone.utc) + timedelta(
+    payload["exp"] = datetime.now(UTC) + timedelta(
         minutes=settings.access_token_expire_minutes
     )
     return jwt.encode(

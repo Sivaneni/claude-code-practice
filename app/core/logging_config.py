@@ -1,7 +1,7 @@
 import logging
 import sys
 from contextvars import ContextVar
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from pythonjsonlogger import json as jsonlogger
 
@@ -37,7 +37,7 @@ class _ELKFormatter(jsonlogger.JsonFormatter):
         message_dict: dict,
     ) -> None:
         super().add_fields(log_record, record, message_dict)
-        log_record["@timestamp"] = datetime.now(timezone.utc).isoformat()
+        log_record["@timestamp"] = datetime.now(UTC).isoformat()
         log_record["level"] = record.levelname
         log_record["logger"] = record.name
         log_record["request_id"] = request_id_ctx.get("-")
