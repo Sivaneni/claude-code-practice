@@ -1,0 +1,14 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: weather-api
+  namespace: weather-api
+  labels:
+    app.kubernetes.io/name: weather-api
+spec:
+  # Guarantee at least one pod stays running during voluntary disruptions
+  # (node drain, cluster upgrades, etc.)
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: weather-api

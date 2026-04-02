@@ -1,0 +1,31 @@
+# Python artefacts
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.ruff_cache/
+
+# Virtual environment — dependencies are installed fresh during build
+.venv/
+
+# Dev / CI tooling — not needed at runtime
+requirements-dev.txt
+.pre-commit-config.yaml
+.github/
+.claude/
+01-slash-commands/
+pyproject.toml
+
+# Tests
+tests/
+
+# Docs and notes
+docs/
+*.md
+
+# Secrets and local config — never bake into an image
+.env
+
+# Git
+.git/
+.gitignore

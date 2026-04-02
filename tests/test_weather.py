@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from fastapi.testclient import TestClient
 
-from main import app
+from app.main import app
 
 client = TestClient(app)
 
@@ -26,22 +26,15 @@ MOCK_WEATHER_RESPONSE = {
 }
 
 
-@pytest.fixture(autouse=True)
-def set_api_key(monkeypatch):
-    monkeypatch.setenv("OPENWEATHER_API_KEY", "test-key-123")
-    import main
-
-    monkeypatch.setattr(main, "API_KEY", "test-key-123")
-
-
+@pytest.mark.usefixtures("auth_override")
 class TestGetWeatherByCityName:
     def test_returns_formatted_weather(self):
-        """Test that /weather/city/{city_name} returns correct formatted response."""
+        """GET /weather/city/{city_name} returns a correctly shaped response."""
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.json.return_value = MOCK_WEATHER_RESPONSE
 
-        with patch("main.httpx.AsyncClient") as mock_client:
+        with patch("app.services.weather.httpx.AsyncClient") as mock_client:
             mock_client.return_value.__aenter__.return_value.get = AsyncMock(
                 return_value=mock_response
             )
@@ -56,11 +49,11 @@ class TestGetWeatherByCityName:
         assert data["weather"]["condition"] == "Clouds"
 
     def test_returns_404_for_unknown_city(self):
-        """Test that /weather/city/{city_name} returns 404 for an unknown city."""
+        """GET /weather/city/{city_name} returns 404 when the city is not found."""
         mock_response = MagicMock()
         mock_response.status_code = 404
 
-        with patch("main.httpx.AsyncClient") as mock_client:
+        with patch("app.services.weather.httpx.AsyncClient") as mock_client:
             mock_client.return_value.__aenter__.return_value.get = AsyncMock(
                 return_value=mock_response
             )
